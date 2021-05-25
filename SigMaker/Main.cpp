@@ -9,7 +9,7 @@ void ShowOptions( void )
     selectionType = (ushort)Settings.iSelectionType;
     keepUnsafeData = (ushort)Settings.iKeepUnsafeData;
     logLevel = (ushort)Settings.iLogLevel;
-	directOnly = (ushort)Settings.directOnly;
+	directOnly = (ushort)Settings.iDirectOnly;
 
     _itoa_s( Settings.iMaxRefCount, szBuffer, MAXSTR, 10 );
 
@@ -33,7 +33,7 @@ void ShowOptions( void )
         Settings.iSelectionType = selectionType;
         Settings.iKeepUnsafeData = keepUnsafeData;
         Settings.iLogLevel = logLevel;
-		Settings.directOnly = directOnly;
+		Settings.iDirectOnly = directOnly;
         qsscanf( szBuffer, "%i", &Settings.iMaxRefCount );      
         Settings.Save( "sigmaker.ini" );
     }

@@ -116,7 +116,7 @@ bool AutoGenerate( ea_t dwAddress, qSigVector& refvecSig )
 
 
     // got references?
-	if (!Settings.directOnly) {
+	if (!Settings.iDirectOnly) {
 		msg("adding references\n");
 		for (ea_t dwCurrent = get_first_cref_to(dwAddress);
 			dwCurrent != BADADDR;

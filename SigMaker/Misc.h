@@ -32,7 +32,7 @@ struct Settings_t {
     unsigned int iMaxRefCount;
     int iKeepUnsafeData;
     int iLogLevel;
-	int directOnly;
+	int iDirectOnly;
 
     void Init( void );
     void Save( const char* pszFileName );
