@@ -1,5 +1,7 @@
 # SigMaker-x64
 
+IDA SigMaker Plugin updated for the IDA Pro 7.5 SDK 
+
 IDA SigMaker Plugin updated for the IDA Pro 7.0 SDK by [dude719](https://github.com/dude719).
 
 PLEASE NOTE: IDA Freeware 7.0 is **NOT** supported. 
