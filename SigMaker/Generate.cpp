@@ -114,30 +114,34 @@ bool AutoGenerate( ea_t dwAddress, qSigVector& refvecSig )
         }
     }
 
-    msg( "adding references\n" );
 
     // got references?
-    for (ea_t dwCurrent = get_first_cref_to( dwAddress );
-        dwCurrent != BADADDR;
-        dwCurrent = get_next_cref_to( dwAddress, dwCurrent ))
-    {
-        if (dwCurrent == dwAddress)
-            continue;
+	if (!Settings.directOnly) {
+		msg("adding references\n");
+		for (ea_t dwCurrent = get_first_cref_to(dwAddress);
+			dwCurrent != BADADDR;
+			dwCurrent = get_next_cref_to(dwAddress, dwCurrent))
+		{
+			if (dwCurrent == dwAddress)
+				continue;
 
-        AutoSig_t TargetLocation;
-        TargetLocation.dwStartAddress = TargetLocation.dwCurrentAddress = dwCurrent;
-        TargetLocation.iOpCount = 0;
-        TargetLocation.eType = PT_REFERENCE;
-        vecSig.push_back( TargetLocation );
+			AutoSig_t TargetLocation;
+			TargetLocation.dwStartAddress = TargetLocation.dwCurrentAddress = dwCurrent;
+			TargetLocation.iOpCount = 0;
+			TargetLocation.eType = PT_REFERENCE;
+			vecSig.push_back(TargetLocation);
 
-        nTotalCount++;
+			nTotalCount++;
 
-        if (Settings.iMaxRefCount > 0)
-        {
-            if (nTotalCount >= Settings.iMaxRefCount)
-                break;
-        }      
-    }
+			if (Settings.iMaxRefCount > 0)
+			{
+				if (nTotalCount >= Settings.iMaxRefCount)
+					break;
+			}
+		}
+	} else
+		msg("Looking for direct signature\n");
+
 
     if (Settings.iLogLevel >= 3 && nTotalCount > 1)
     {

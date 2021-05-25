@@ -3,12 +3,14 @@
  
 void ShowOptions( void )
 {
-    ushort selectionType, keepUnsafeData, logLevel;
+    ushort selectionType, keepUnsafeData, logLevel, directOnly;
     char szBuffer[MAXSTR] = { 0 };
 
     selectionType = (ushort)Settings.iSelectionType;
     keepUnsafeData = (ushort)Settings.iKeepUnsafeData;
     logLevel = (ushort)Settings.iLogLevel;
+	directOnly = (ushort)Settings.directOnly;
+
     _itoa_s( Settings.iMaxRefCount, szBuffer, MAXSTR, 10 );
 
     int iResult = ask_form( 
@@ -23,19 +25,46 @@ void ShowOptions( void )
         "<#Log results:R>\n" // 1
         "<#Log errors and results:R>\n" // 2
         "<#Log errors, results and interim steps of all proceedures:R>>\n" // 3
-        , &selectionType, szBuffer, &keepUnsafeData, &logLevel );
+		"<#Direct signatures only:C>>\n" // 3
+		, &selectionType, szBuffer, &keepUnsafeData, &logLevel, &directOnly);
 
     if (iResult > 0)
     {
         Settings.iSelectionType = selectionType;
         Settings.iKeepUnsafeData = keepUnsafeData;
         Settings.iLogLevel = logLevel;
+		Settings.directOnly = directOnly;
         qsscanf( szBuffer, "%i", &Settings.iMaxRefCount );      
         Settings.Save( "sigmaker.ini" );
     }
 }
 
-bool idaapi run( size_t /*arg*/ )
+struct plugin_data_t : public plugmod_t, public event_listener_t
+{
+	ea_t old_ea = BADADDR;
+	int old_lnnum = -1;
+	virtual ssize_t idaapi on_event(ssize_t event_id, va_list) override;
+	virtual bool idaapi run(size_t arg) override;
+
+	idaapi ~plugin_data_t();
+};
+
+plugin_data_t::~plugin_data_t()
+{
+}
+
+ssize_t idaapi plugin_data_t::on_event(ssize_t event_id, va_list)
+{
+	if (event_id != ui_msg     // avoid recursion
+		&& event_id != ui_refreshmarked) // ignore uninteresting events
+	{
+		msg("ui_callback %" FMT_ZS "\n", event_id);
+	}
+	return 0; // 0 means "continue processing the event"
+			  // otherwise the event is considered as processed
+}
+
+bool idaapi plugin_data_t::run( size_t /*arg*/ )
 {
     int iAction = 0;
 
@@ -93,20 +122,24 @@ bool idaapi run( size_t /*arg*/ )
     return true;
 }
 
-int idaapi init( void )
+static plugmod_t* idaapi init()
 {
     Settings.Init( );
     Settings.Load( "sigmaker.ini" );
 
-    return PLUGIN_OK;
+	plugin_data_t* pd = new plugin_data_t;
+
+	//msg("SigMaker initialized\n");
+
+    return pd;
 }
 
 plugin_t PLUGIN = {
     IDP_INTERFACE_VERSION,
-    PLUGIN_KEEP,
+	PLUGIN_MULTI,
     init,
-    NULL,
-    run,
+	nullptr,
+	nullptr,
     "Creates a unique signature",
     "SigMaker plugin",
     "SigMaker",
